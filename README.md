@@ -1,84 +1,171 @@
 # Smart Task Manager & CPU Scheduling Visualizer
 
-A desktop Java app that (1) shows real, live OS process data via **OSHI**, and
-(2) lets you pick processes and simulate how FCFS / SJF / SRTF / Priority /
-Round Robin would schedule them, with a Gantt chart and waiting/turnaround
-metrics.
+A JavaFX desktop application that combines real-time system process monitoring with CPU scheduling algorithm simulation. The application allows users to monitor active processes, select them for simulation, compare different scheduling algorithms, visualize execution using Gantt charts, and export results as CSV files.
 
-## Requirements
-- JDK 17+
-- Maven 3.8+
-- Internet access on first build (Maven needs to download JavaFX + OSHI from Maven Central)
+---
 
-## Run it
+## Features
+
+- Live CPU, Memory and Process monitoring
+- Search running processes by name
+- Select multiple processes for simulation
+- Edit Arrival Time, Burst Time and Priority
+- Simulate multiple CPU Scheduling algorithms
+- Interactive Gantt Chart visualization
+- Performance metrics calculation
+- Export scheduling results to CSV
+
+---
+
+## CPU Scheduling Algorithms Implemented
+
+- First Come First Serve (FCFS)
+- Shortest Job First (Non-Preemptive)
+- Shortest Remaining Time First (Preemptive SJF)
+- Priority Scheduling (Non-Preemptive)
+- Priority Scheduling (Preemptive)
+- Round Robin
+
+---
+
+# Screenshots
+
+## Dashboard
+
+Displays all currently running processes with their CPU usage, memory usage, thread count and process state.
+
+<img src="images/dashboard.png" width="100%">
+
+---
+
+## Search Running Processes
+
+Quickly filter running processes using the search bar.
+
+<img src="images/search.png" width="100%">
+
+---
+
+## Process Selection
+
+Select one or more processes before starting the scheduling simulation.
+
+<img src="images/selected.png" width="100%">
+
+---
+
+## Simulation Dashboard
+
+Assign arrival time, burst time and priority values before running the selected scheduling algorithm.
+
+<img src="images/simulation dashboard.png" width="100%">
+
+---
+
+## Algorithm Selection
+
+Choose from multiple CPU Scheduling algorithms.
+
+<img src="images/algorithm selection.png" width="100%">
+
+---
+
+## Simulation Result
+
+Displays completion time, waiting time, turnaround time, averages and context switches.
+
+<img src="images/simulation result.png" width="100%">
+
+---
+
+## Gantt Chart
+
+Visual representation of process execution sequence.
+
+<img src="images/gantt chart.png" width="100%">
+
+---
+
+## CSV Export
+
+Scheduling results can be exported for further analysis.
+
+<img src="images/csv output.png" width="100%">
+
+---
+
+## Technologies Used
+
+- Java 17
+- JavaFX
+- Maven
+- OSHI (Operating System and Hardware Information)
+- CSS
+- CSV Export Utility
+
+---
+
+## Project Structure
+
+```
+src
+├── controller
+├── model
+├── monitor
+├── scheduler
+├── util
+└── resources
+```
+
+---
+
+## Performance Metrics
+
+The simulator calculates:
+
+- Completion Time (CT)
+- Waiting Time (WT)
+- Turnaround Time (TAT)
+- Average Waiting Time
+- Average Turnaround Time
+- Context Switches
+
+---
+
+## How to Run
+
+Clone the repository
+
 ```bash
-mvn clean javafx:run
+git clone https://github.com/sadafjumani/Smart-Task-Manager.git
 ```
 
-## Package a runnable jar
+Move into the project directory
+
 ```bash
-mvn clean package
+cd Smart-Task-Manager
 ```
 
-## Project layout
-```
-src/main/java/com/stm/
-  Main.java                      JavaFX entry point
-  model/                         Plain data classes (no OS/UI code)
-    ProcessInfo.java             a REAL live OS process (from OSHI)
-    SchedulableProcess.java      a process as the scheduler sees it (user-assigned AT/BT/priority)
-    ScheduleResult.java          computed metrics for one process (WT, TAT, CT)
-    GanttEntry.java              one block on the Gantt chart
-    SimulationResult.java        bundles results + gantt + averages
-  monitor/
-    SystemMonitor.java           the ONLY class that talks to OSHI
-  scheduler/
-    SchedulingAlgorithm.java     strategy interface
-    FCFSScheduler.java
-    SJFScheduler.java            non-preemptive SJF + preemptive SRTF
-    PriorityScheduler.java       non-preemptive + preemptive
-    RoundRobinScheduler.java
-  controller/
-    DashboardController.java     live table, background polling thread
-    SimulationController.java    editable input table, algorithm picker, Gantt drawing
-  util/
-    CsvExporter.java             export results to .csv
-src/main/resources/
-  fxml/Dashboard.fxml
-  fxml/Simulation.fxml
-  css/style.css
+Run using Maven
+
+```bash
+mvn javafx:run
 ```
 
-## Design notes / why it's built this way
+---
 
-**Why OSHI can't give us "burst time" or "priority" directly.** Those are
-scheduler-internal concepts inside the real kernel; the OS only exposes
-observable facts (PID, name, CPU%, RAM, threads). So `ProcessInfo` (real data)
-and `SchedulableProcess` (simulation input) are deliberately separate classes.
-When you click "Simulate Scheduling," selected `ProcessInfo` rows are converted
-into `SchedulableProcess` rows with sensible defaults (staggered arrival times,
-burst estimated from current CPU%) that you can then edit in the table.
+## Future Improvements
 
-**Why algorithms return a `SimulationResult` object instead of printing.**
-Keeps `scheduler/` completely UI-agnostic — you could reuse these classes in a
-CLI tool or a unit test with zero changes. The controller just renders
-whatever the algorithm computed.
+- Multi-level Queue Scheduling
+- Multi-level Feedback Queue Scheduling
+- Real-time process graph visualization
+- Dark/Light theme support
+- Process priority editing from dashboard
 
-**Why preemptive variants exist.** Non-preemptive SJF/Priority and their
-preemptive counterparts (SRTF, preemptive Priority) produce visibly different
-Gantt charts and averages on identical input — that comparison is the actual
-learning value of a "visualizer," not just implementing one algorithm.
+---
 
-**Why polling runs on its own thread.** `SystemMonitor` calls into OSHI, which
-talks to the OS — this can occasionally stall. Doing it on a daemon thread and
-marshalling results back with `Platform.runLater` keeps the UI responsive,
-and is a real (not cosmetic) use of the "multithreading" concept listed in
-the spec.
+## Author
 
-## Possible next steps
-- Add **Multilevel Feedback Queue** as another `SchedulingAlgorithm` implementation.
-- Add a **process-state pie chart** (Running/Sleeping/Waiting) using OSHI's `getState()`.
-- Persist past simulation runs to compare algorithms across sessions.
-- Add a "compare all algorithms" mode that runs every algorithm on the same
-  input and shows a bar chart of average waiting time side-by-side.
-- Export the Gantt chart itself as a PNG (Canvas already supports `SnapshotParameters`).
+**Sadaf Jumani**
+
+GitHub: https://github.com/sadafjumani
