@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.stm.controller.SimulationController"
+            stylesheets="@../css/style.css">
+
+    <top>
+        <VBox spacing="8" styleClass="header-bar">
+            <padding><Insets top="10" right="16" bottom="10" left="16"/></padding>
+            <Label text="Simulate Scheduling" styleClass="title-label"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Algorithm:"/>
+                <ComboBox fx:id="algorithmBox" prefWidth="260"/>
+                <Label text="Quantum:"/>
+                <TextField fx:id="quantumField" prefWidth="50" text="2"/>
+                <Button text="Run" onAction="#onRunClicked" styleClass="primary-button"/>
+                <Button text="Export CSV" onAction="#onExportClicked"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.4" BorderPane.alignment="CENTER">
+            <VBox spacing="6">
+                <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+                <Label text="Assign Arrival / Burst / Priority (double-click a cell to edit)" styleClass="hint-label"/>
+                <TableView fx:id="inputTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colInPid" text="PID" prefWidth="60"/>
+                        <TableColumn fx:id="colInName" text="Process" prefWidth="130"/>
+                        <TableColumn fx:id="colInArrival" text="Arrival" prefWidth="70"/>
+                        <TableColumn fx:id="colInBurst" text="Burst" prefWidth="70"/>
+                        <TableColumn fx:id="colInPriority" text="Priority" prefWidth="70"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+            <VBox spacing="6">
+                <padding><Insets top="8" right="8" bottom="8" left="8"/></padding>
+                <Label text="Scheduling Result" styleClass="hint-label"/>
+                <TableView fx:id="resultTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="colResPid" text="PID" prefWidth="50"/>
+                        <TableColumn fx:id="colResName" text="Process" prefWidth="110"/>
+                        <TableColumn fx:id="colResArrival" text="AT" prefWidth="45"/>
+                        <TableColumn fx:id="colResBurst" text="BT" prefWidth="45"/>
+                        <TableColumn fx:id="colResCompletion" text="CT" prefWidth="45"/>
+                        <TableColumn fx:id="colResWaiting" text="WT" prefWidth="45"/>
+                        <TableColumn fx:id="colResTurnaround" text="TAT" prefWidth="50"/>
+                    </columns>
+                </TableView>
+                <HBox spacing="20">
+                    <Label fx:id="avgWaitingLabel" text="Average Waiting Time: --" styleClass="stat-label"/>
+                    <Label fx:id="avgTurnaroundLabel" text="Average Turnaround Time: --" styleClass="stat-label"/>
+                    <Label fx:id="switchesLabel" text="Context Switches: --" styleClass="stat-label"/>
+                </HBox>
+            </VBox>
+        </SplitPane>
+    </center>
+
+    <bottom>
+        <VBox spacing="4" styleClass="footer-bar">
+            <padding><Insets top="8" right="16" bottom="12" left="16"/></padding>
+            <Label text="Gantt Chart" styleClass="hint-label"/>
+            <ScrollPane fitToHeight="true" prefHeight="90">
+                <Canvas fx:id="ganttCanvas" height="80" width="2000"/>
+            </ScrollPane>
+        </VBox>
+    </bottom>
+
+</BorderPane>
